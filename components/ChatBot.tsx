@@ -1,6 +1,7 @@
 
 import React, { useState, useRef, useEffect } from 'react';
-import { getGeminiResponse } from '../services/geminiService';
+// Fix: Corrected relative path for getGeminiResponse from services/geminiService.ts
+import { getGeminiResponse } from './services/geminiService';
 import { ChatMessage } from '../types';
 
 const ChatBot: React.FC = () => {

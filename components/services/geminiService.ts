@@ -1,6 +1,7 @@
 
 import { GoogleGenAI } from "@google/genai";
-import { TEAM_DATA } from "../constants";
+// Fix: Corrected import path for TEAM_DATA from root constants.tsx
+import { TEAM_DATA } from "../../constants";
 
 const SYSTEM_INSTRUCTION = `
 You are the AI Mission Control Assistant for Casuall Camping. Your objective is to help team members and stakeholders navigate the high-performance operational workflow.
@@ -32,6 +33,7 @@ export const getGeminiResponse = async (prompt: string): Promise<string> => {
       },
     });
 
+    // Fix: Access .text property directly as per latest @google/genai guidelines
     const text = response.text;
     return text || "Uplink silent. No data received from the neural network.";
   } catch (error) {
