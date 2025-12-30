@@ -34,8 +34,8 @@ const ChatBot: React.FC = () => {
   return (
     <div className="fixed bottom-8 right-8 z-50">
       {/* Chat window */}
-      <div className={`transition-all duration-500 ease-in-out transform origin-bottom-right mb-4 ${isOpen ? 'scale-100 opacity-100' : 'scale-0 opacity-0 pointer-events-none'}`}>
-        <div className="w-80 md:w-96 glass border-blue-500/30 rounded-lg overflow-hidden flex flex-col h-[500px]">
+      <div className={`transition-all duration-500 ease-in-out transform origin-bottom-right mb-6 ${isOpen ? 'scale-100 opacity-100' : 'scale-0 opacity-0 pointer-events-none'}`}>
+        <div className="w-80 md:w-96 glass border-blue-500/30 rounded-lg overflow-hidden flex flex-col h-[500px] shadow-2xl">
           {/* Header */}
           <div className="p-4 bg-blue-500/10 border-b border-blue-500/20 flex justify-between items-center">
             <div className="flex items-center gap-2">
@@ -92,10 +92,10 @@ const ChatBot: React.FC = () => {
         </div>
       </div>
 
-      {/* Toggle Button */}
+      {/* Toggle Button - Matches screenshot's vibrant blue brain button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className={`w-14 h-14 rounded-full flex items-center justify-center text-xl transition-all duration-300 shadow-2xl relative group ${isOpen ? 'bg-zinc-900 border border-white/10 rotate-90' : 'bg-blue-600 hover:bg-blue-500 shadow-blue-500/20'}`}
+        className={`w-14 h-14 rounded-full flex items-center justify-center text-xl transition-all duration-300 shadow-[0_0_30px_rgba(59,130,246,0.5)] relative group overflow-hidden ${isOpen ? 'bg-zinc-900 border border-white/20 rotate-90' : 'bg-blue-600 hover:bg-blue-500 shadow-blue-500/40'}`}
       >
         <div className="absolute inset-0 rounded-full bg-blue-400 opacity-20 blur-md group-hover:opacity-40 transition-opacity" />
         {isOpen ? <i className="fa-solid fa-xmark"></i> : <i className="fa-solid fa-brain"></i>}

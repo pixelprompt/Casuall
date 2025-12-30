@@ -8,13 +8,13 @@ interface MemberCardProps {
 
 const MemberCard: React.FC<MemberCardProps> = ({ member }) => {
   const colorMap: Record<string, string> = {
-    blue: 'border-blue-500/30 hover:border-blue-400 group-hover:shadow-[0_0_20px_rgba(59,130,246,0.2)]',
-    purple: 'border-purple-500/30 hover:border-purple-400 group-hover:shadow-[0_0_20px_rgba(168,85,247,0.2)]',
-    rose: 'border-rose-500/30 hover:border-rose-400 group-hover:shadow-[0_0_20px_rgba(244,63,94,0.2)]',
-    emerald: 'border-emerald-500/30 hover:border-emerald-400 group-hover:shadow-[0_0_20px_rgba(16,185,129,0.2)]',
-    amber: 'border-amber-500/30 hover:border-amber-400 group-hover:shadow-[0_0_20px_rgba(245,158,11,0.2)]',
-    cyan: 'border-cyan-500/30 hover:border-cyan-400 group-hover:shadow-[0_0_20px_rgba(6,182,212,0.2)]',
-    indigo: 'border-indigo-500/30 hover:border-indigo-400 group-hover:shadow-[0_0_20px_rgba(99,102,241,0.2)]',
+    blue: 'border-blue-500/20 hover:border-blue-400 group-hover:shadow-[0_0_30px_rgba(59,130,246,0.1)]',
+    purple: 'border-purple-500/20 hover:border-purple-400 group-hover:shadow-[0_0_30px_rgba(168,85,247,0.1)]',
+    rose: 'border-rose-500/20 hover:border-rose-400 group-hover:shadow-[0_0_30px_rgba(244,63,94,0.1)]',
+    emerald: 'border-emerald-500/20 hover:border-emerald-400 group-hover:shadow-[0_0_30px_rgba(16,185,129,0.1)]',
+    amber: 'border-amber-500/20 hover:border-amber-400 group-hover:shadow-[0_0_30px_rgba(245,158,11,0.1)]',
+    cyan: 'border-cyan-500/20 hover:border-cyan-400 group-hover:shadow-[0_0_30px_rgba(6,182,212,0.1)]',
+    indigo: 'border-indigo-500/20 hover:border-indigo-400 group-hover:shadow-[0_0_30px_rgba(99,102,241,0.1)]',
   };
 
   const accentColor: Record<string, string> = {
@@ -27,78 +27,97 @@ const MemberCard: React.FC<MemberCardProps> = ({ member }) => {
     indigo: 'text-indigo-400',
   };
 
-  const bgAccent: Record<string, string> = {
-    blue: 'bg-blue-500/10',
-    purple: 'bg-purple-500/10',
-    rose: 'bg-rose-500/10',
-    emerald: 'bg-emerald-500/10',
-    amber: 'bg-amber-500/10',
-    cyan: 'bg-cyan-500/10',
-    indigo: 'bg-indigo-500/10',
+  const accentBg: Record<string, string> = {
+    blue: 'bg-blue-400',
+    purple: 'bg-purple-400',
+    rose: 'bg-rose-400',
+    emerald: 'bg-emerald-400',
+    amber: 'bg-amber-400',
+    cyan: 'bg-cyan-400',
+    indigo: 'bg-indigo-400',
   };
 
   const sizeClass = {
-    small: 'col-span-12 md:col-span-6 lg:col-span-3 h-auto',
-    medium: 'col-span-12 md:col-span-6 lg:col-span-4 h-auto',
-    large: 'col-span-12 md:col-span-12 lg:col-span-6 h-auto',
-    tall: 'col-span-12 md:col-span-6 lg:col-span-3 row-span-2 h-auto',
+    small: 'col-span-12 md:col-span-6 lg:col-span-3',
+    medium: 'col-span-12 md:col-span-6 lg:col-span-4',
+    large: 'col-span-12 lg:col-span-6',
+    tall: 'col-span-12 md:col-span-6 lg:col-span-3 row-span-2',
   };
 
   return (
-    <div className={`group relative flex flex-col border transition-all duration-500 bg-zinc-900/50 hover:bg-zinc-900/80 backdrop-blur-sm overflow-hidden ${colorMap[member.color]} ${sizeClass[member.size]}`}>
-      {/* Background patterns */}
-      <div className="absolute top-0 right-0 p-2 opacity-5 pointer-events-none">
-        <i className={`fa-solid ${member.icon} text-6xl`}></i>
+    <div className={`group relative flex flex-col border border-white/5 transition-all duration-700 bg-zinc-900/20 hover:bg-zinc-900/40 backdrop-blur-md overflow-hidden ${colorMap[member.color]} ${sizeClass[member.size]}`}>
+      {/* Corner Brackets */}
+      <div className={`card-corner corner-tl group-hover:border-white/40 transition-colors`} />
+      <div className={`card-corner corner-tr group-hover:border-white/40 transition-colors`} />
+      <div className={`card-corner corner-bl group-hover:border-white/40 transition-colors`} />
+      <div className={`card-corner corner-br group-hover:border-white/40 transition-colors`} />
+
+      {/* Background Graphic Decor */}
+      <div className="absolute -top-10 -right-10 opacity-[0.03] pointer-events-none group-hover:opacity-[0.07] transition-opacity duration-700">
+        <i className={`fa-solid ${member.icon} text-[180px]`}></i>
       </div>
       
-      <div className="p-6 h-full flex flex-col">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-6">
+      <div className="p-8 h-full flex flex-col relative z-10">
+        {/* Header HUD Style */}
+        <div className="flex items-start justify-between mb-8">
           <div>
-            <span className={`text-[10px] uppercase tracking-[0.3em] mono font-bold mb-1 block ${accentColor[member.color]}`}>
+            <div className="flex items-center gap-2 mb-2">
+               <span className={`px-2 py-0.5 rounded-sm text-[9px] uppercase tracking-[0.2em] mono font-bold border border-white/10 ${accentColor[member.color]} bg-white/5`}>
+                SYS_NODE_{member.id.toUpperCase().slice(0, 3)}
+              </span>
+              <div className="w-12 h-[1px] bg-white/10"></div>
+            </div>
+            <h3 className="text-3xl font-black tracking-tighter uppercase leading-none group-hover:tracking-normal transition-all duration-700">
+              {member.name}
+            </h3>
+            <span className="text-[10px] text-zinc-500 uppercase tracking-widest block mt-1 mono">
               {member.category}
             </span>
-            <h3 className="text-2xl font-bold tracking-tight uppercase">{member.name}</h3>
           </div>
-          <div className={`w-12 h-12 flex items-center justify-center rounded border border-white/10 ${bgAccent[member.color]}`}>
-            <i className={`fa-solid ${member.icon} ${accentColor[member.color]} text-xl`}></i>
+          <div className={`w-14 h-14 flex items-center justify-center border border-white/5 bg-black/40 group-hover:border-white/20 transition-all`}>
+            <i className={`fa-solid ${member.icon} ${accentColor[member.color]} text-2xl`}></i>
           </div>
         </div>
 
-        {/* Task List */}
-        <div className="flex-grow space-y-3">
+        {/* Task List with HUD Visuals */}
+        <div className="flex-grow space-y-4">
           {member.tasks.map((task, idx) => (
-            <div key={idx} className="flex items-start gap-3 group/item">
-              <div className={`mt-1.5 w-1 h-1 rounded-full ${bgAccent[member.color].replace('/10', '/60')}`} />
-              <div className="flex justify-between w-full border-b border-white/5 pb-1 group-hover/item:border-white/20 transition-colors">
-                <span className="text-sm text-zinc-400 group-hover/item:text-zinc-200 transition-colors">
+            <div key={idx} className="group/item relative">
+              <div className="flex justify-between items-end mb-1">
+                <span className="text-xs uppercase tracking-wider text-zinc-400 group-hover/item:text-white transition-colors">
                   {task.label}
                 </span>
                 {task.count && (
-                  <span className={`text-[10px] mono font-bold px-1.5 py-0.5 rounded border border-white/10 ${accentColor[member.color]}`}>
-                    {task.count}
+                  <span className={`text-[10px] mono font-bold ${accentColor[member.color]}`}>
+                    VAL::{task.count.toString().padStart(2, '0')}
                   </span>
                 )}
+              </div>
+              <div className="h-[2px] w-full bg-white/5 relative overflow-hidden">
+                <div 
+                  className={`h-full absolute left-0 top-0 transition-all duration-1000 ease-out group-hover:opacity-100 opacity-60 ${accentBg[member.color]}`} 
+                  style={{ width: `${Math.random() * 40 + 60}%` }} 
+                />
               </div>
             </div>
           ))}
         </div>
 
-        {/* Footer info */}
-        <div className="mt-8 flex items-center justify-between opacity-50 text-[10px] mono uppercase">
-          <span>Module_ID: {member.id.toUpperCase()}_04</span>
-          <span className="flex items-center gap-2">
-            <span className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse" />
-            Status: Operational
-          </span>
+        {/* Technical Footer */}
+        <div className="mt-10 flex items-center justify-between text-[9px] mono uppercase text-zinc-600">
+          <div className="flex items-center gap-4">
+            <span>Lat: { (Math.random() * 90).toFixed(4) }N</span>
+            <span>Lng: { (Math.random() * 180).toFixed(4) }E</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className={`w-1 h-1 rounded-full ${accentBg[member.color]} animate-pulse`}></span>
+            <span>Link_Stable</span>
+          </div>
         </div>
       </div>
 
-      {/* Hover decoration corner */}
-      <div className={`absolute bottom-0 right-0 w-8 h-8 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none`}>
-        <div className={`absolute bottom-0 right-0 w-2 h-0.5 ${bgAccent[member.color].replace('/10', '')}`}></div>
-        <div className={`absolute bottom-0 right-0 h-2 w-0.5 ${bgAccent[member.color].replace('/10', '')}`}></div>
-      </div>
+      {/* Outer Outline (The Wireframe Look) */}
+      <div className="absolute inset-0 border border-white/0 group-hover:border-white/10 scale-[1.02] pointer-events-none transition-all duration-500" />
     </div>
   );
 };
