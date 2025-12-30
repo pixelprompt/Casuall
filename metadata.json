@@ -1,0 +1,7 @@
+{
+  "name": "Project Mission Control",
+  "description": "A cinematic, dark-themed bento-grid dashboard for high-performance team project visualization with an integrated AI agent.",
+  "requestFramePermissions": [
+    "microphone"
+  ]
+}
