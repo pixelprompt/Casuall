@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { Assignment, AssignmentStatus, AssignmentUpdate, AuthRole } from '../types';
 import AssignmentForm from './AssignmentForm';
 import AssignmentCard from './AssignmentCard';
@@ -15,24 +15,33 @@ const Tracker: React.FC<TrackerProps> = ({ currentUserRole }) => {
   const [filter, setFilter] = useState<string>('All');
   const [search, setSearch] = useState('');
   const [sortBy, setSortBy] = useState<'date' | 'status' | 'name'>('date');
+  const [isInitialized, setIsInitialized] = useState(false);
 
-  // Persistence
+  // Persistence - Load
   useEffect(() => {
     const saved = localStorage.getItem('MISSION_LEDGER_V2');
     if (saved) {
       try {
-        setAssignments(JSON.parse(saved));
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed)) {
+          setAssignments(parsed);
+        }
       } catch (e) {
         console.error("Failed to parse mission ledger", e);
       }
     }
+    setIsInitialized(true);
   }, []);
 
+  // Persistence - Save (only after initial load)
   useEffect(() => {
-    localStorage.setItem('MISSION_LEDGER_V2', JSON.stringify(assignments));
-  }, [assignments]);
+    if (isInitialized) {
+      localStorage.setItem('MISSION_LEDGER_V2', JSON.stringify(assignments));
+    }
+  }, [assignments, isInitialized]);
 
-  const handleAddOrUpdate = (assignment: Assignment) => {
+  const handleAddOrUpdate = useCallback((assignment: Assignment) => {
+    console.log("Saving assignment:", assignment);
     setAssignments(prev => {
       const exists = prev.find(a => a.taskId === assignment.taskId);
       if (exists) {
@@ -42,7 +51,7 @@ const Tracker: React.FC<TrackerProps> = ({ currentUserRole }) => {
     });
     setIsFormOpen(false);
     setEditingAssignment(null);
-  };
+  }, []);
 
   const handleStatusUpdate = (taskId: string, newStatus: AssignmentStatus, comment: string) => {
     setAssignments(prev => prev.map(a => {
@@ -110,6 +119,12 @@ const Tracker: React.FC<TrackerProps> = ({ currentUserRole }) => {
     blocked: assignments.filter(a => a.status === 'Blocked').length,
   }), [assignments]);
 
+  const openAddForm = () => {
+    console.log("Opening Add Entry Form...");
+    setEditingAssignment(null);
+    setIsFormOpen(true);
+  };
+
   return (
     <div className="space-y-12 animate-hud">
       {/* HUD Controls */}
@@ -135,11 +150,8 @@ const Tracker: React.FC<TrackerProps> = ({ currentUserRole }) => {
 
           {currentUserRole === 'ADMIN' && (
             <button 
-              onClick={() => {
-                setEditingAssignment(null);
-                setIsFormOpen(true);
-              }}
-              className="flex items-center gap-2 px-6 py-2.5 rounded-sm font-black uppercase text-xs tracking-[0.2em] transition-all active:scale-95 border border-blue-500/50 shadow-[0_0_20px_rgba(59,130,246,0.1)] bg-blue-600 text-white hover:bg-blue-500 hover:shadow-[0_0_30px_rgba(59,130,246,0.4)]"
+              onClick={openAddForm}
+              className="flex items-center gap-2 px-6 py-2.5 rounded-sm font-black uppercase text-xs tracking-[0.2em] transition-all active:scale-95 border border-blue-500/50 shadow-[0_0_20px_rgba(59,130,246,0.1)] bg-blue-600 text-white hover:bg-blue-500 hover:shadow-[0_0_30px_rgba(59,130,246,0.4)] cursor-pointer relative z-30"
             >
               <i className="fa-solid fa-plus"></i>
               ADD_ENTRY
@@ -155,30 +167,6 @@ const Tracker: React.FC<TrackerProps> = ({ currentUserRole }) => {
           </button>
         </div>
       </div>
-
-      {/* Assignment Form Modal Overlay */}
-      {isFormOpen && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-black/80 backdrop-blur-sm animate-in fade-in duration-300 overflow-y-auto">
-          <div className="w-full max-w-4xl relative z-10">
-            <AssignmentForm 
-              onSubmit={handleAddOrUpdate}
-              editingAssignment={editingAssignment}
-              onCancel={() => {
-                setIsFormOpen(false);
-                setEditingAssignment(null);
-              }}
-            />
-          </div>
-          {/* Backdrop click listener */}
-          <div 
-            className="absolute inset-0 cursor-pointer" 
-            onClick={() => {
-              setIsFormOpen(false);
-              setEditingAssignment(null);
-            }}
-          />
-        </div>
-      )}
 
       {/* Grid Filters */}
       <div className="flex flex-wrap gap-6 items-center border-y border-white/5 py-8 relative z-10">
@@ -239,6 +227,32 @@ const Tracker: React.FC<TrackerProps> = ({ currentUserRole }) => {
             NO ACTIVE ASSIGNMENTS IN SECTOR. <br />
             SYSTEM STANDBY FOR MISSION DATA.
           </p>
+        </div>
+      )}
+
+      {/* Assignment Form Modal Overlay - Moved to bottom for clear stacking */}
+      {isFormOpen && (
+        <div className="fixed inset-0 z-[200] flex items-center justify-center p-6 overflow-y-auto">
+          {/* Backdrop */}
+          <div 
+            className="fixed inset-0 bg-black/80 backdrop-blur-sm transition-opacity" 
+            onClick={() => {
+              setIsFormOpen(false);
+              setEditingAssignment(null);
+            }}
+          />
+          
+          {/* Content */}
+          <div className="w-full max-w-4xl relative z-[210] animate-in fade-in zoom-in-95 duration-300">
+            <AssignmentForm 
+              onSubmit={handleAddOrUpdate}
+              editingAssignment={editingAssignment}
+              onCancel={() => {
+                setIsFormOpen(false);
+                setEditingAssignment(null);
+              }}
+            />
+          </div>
         </div>
       )}
     </div>

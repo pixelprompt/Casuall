@@ -157,19 +157,21 @@ const AssignmentCard: React.FC<AssignmentCardProps> = ({ assignment, onEdit, onU
           </div>
 
           <div className="mt-8 flex gap-4 pt-4 border-t border-white/5">
-            <button 
-              onClick={() => onEdit(assignment)}
-              className="flex-grow py-2.5 border border-blue-500/20 hover:bg-blue-500/10 text-blue-400 text-[9px] mono font-black uppercase tracking-widest transition-all"
-            >
-              Update
-            </button>
             {currentUserRole === 'ADMIN' && (
-              <button 
-                onClick={() => onDelete(assignment.taskId)}
-                className="px-6 py-2.5 border border-rose-500/20 hover:bg-rose-500/10 text-rose-400 text-[9px] mono font-black uppercase tracking-widest transition-all"
-              >
-                Purge
-              </button>
+              <>
+                <button 
+                  onClick={() => onEdit(assignment)}
+                  className="flex-grow py-2.5 border border-blue-500/20 hover:bg-blue-500/10 text-blue-400 text-[9px] mono font-black uppercase tracking-widest transition-all"
+                >
+                  Update_Record
+                </button>
+                <button 
+                  onClick={() => onDelete(assignment.taskId)}
+                  className="px-6 py-2.5 border border-rose-500/20 hover:bg-rose-500/10 text-rose-400 text-[9px] mono font-black uppercase tracking-widest transition-all"
+                >
+                  Purge
+                </button>
+              </>
             )}
           </div>
         </div>

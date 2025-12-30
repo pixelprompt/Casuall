@@ -3,32 +3,39 @@ import { GoogleGenAI } from "@google/genai";
 import { TEAM_DATA } from "../constants";
 
 const SYSTEM_INSTRUCTION = `
-You are the AI Mission Control Assistant. Your objective is to help team members and stakeholders navigate the current project workflow.
-Context:
+You are the AI Mission Control Assistant for Casuall Camping. Your objective is to help team members and stakeholders navigate the high-performance operational workflow.
+
+MISSION CONTEXT:
 ${JSON.stringify(TEAM_DATA, null, 2)}
 
-Instructions:
-1. Provide concise, professional, and slightly futuristic/technical responses.
-2. If asked who is doing what, refer to the provided team data.
-3. Be helpful but efficient. Use technical jargon where appropriate (e.g., 'workflow integration', 'logistics optimization', 'model deployment').
+OPERATIONAL PROTOCOLS:
+1. RESPONSE STYLE: Professional, technical, concise, and slightly futuristic.
+2. DATA INTEGRITY: Only refer to the provided team matrix for person-to-task mapping.
+3. TERMINOLOGY: Use terms like 'Node synchronization', 'Uplink active', 'Operational parameters', and 'Logistics deployment'.
+4. ASSISTANCE: Be highly efficient. Do not provide unnecessary fluff. Provide direct answers to system status queries.
 `;
 
 export const getGeminiResponse = async (prompt: string): Promise<string> => {
+  if (!process.env.API_KEY) {
+    return "ERROR: System API Key missing. Please initialize environment variables.";
+  }
+
   try {
-    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY || "" });
+    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
     const response = await ai.models.generateContent({
-      model: 'gemini-3-pro-preview',
+      model: 'gemini-3-flash-preview',
       contents: prompt,
       config: {
         systemInstruction: SYSTEM_INSTRUCTION,
-        temperature: 0.7,
-        topP: 0.95,
+        temperature: 0.65,
+        topP: 0.9,
       },
     });
 
-    return response.text || "I am unable to process that command at this time.";
+    const text = response.text;
+    return text || "Uplink silent. No data received from the neural network.";
   } catch (error) {
-    console.error("Gemini API Error:", error);
-    return "Error: System link interrupted. Please check your neural connection.";
+    console.error("Mission Control Connectivity Error:", error);
+    return "CRITICAL_ERROR: Transmission interrupted. Connection to the AI Node failed.";
   }
 };

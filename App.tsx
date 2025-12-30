@@ -29,11 +29,8 @@ const App: React.FC = () => {
   };
 
   const handleLogout = () => {
-    // 1) Clear localStorage
     localStorage.removeItem('KMV_AUTH_SESSION_V4');
-    // 2) Set user state to null (triggers redirect to login)
     setUser(null);
-    // 3) Show alert
     alert("Logged out successfully");
   };
 
@@ -44,12 +41,10 @@ const App: React.FC = () => {
     <div className="min-h-screen pb-32 selection:bg-blue-500/30 overflow-x-hidden">
       {/* Background Layers */}
       <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden bg-[#020202]">
-        {/* Cinematic Blobs */}
         <div className="absolute top-[5%] left-[5%] w-[1200px] h-[1200px] bg-blue-900/[0.07] blur-[200px] rounded-full animate-pulse" />
         <div className="absolute top-[20%] right-[-5%] w-[1000px] h-[1000px] bg-purple-900/[0.05] blur-[220px] rounded-full animate-pulse" style={{ animationDelay: '3s' }} />
         <div className="absolute bottom-[-10%] left-[20%] w-[900px] h-[900px] bg-indigo-900/[0.04] blur-[180px] rounded-full" />
         
-        {/* Tech Mesh Grid */}
         <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" className="opacity-[0.12]">
           <defs>
             <pattern id="gridMain" width="100" height="100" patternUnits="userSpaceOnUse">
@@ -109,9 +104,7 @@ const App: React.FC = () => {
               </span>
             </div>
             
-            {/* Title with HUD Frame Frame */}
             <div className="relative inline-block mb-12 group">
-              {/* Blue Outline Frame from Screenshot */}
               <div className="absolute -inset-x-8 -inset-y-6 border-2 border-blue-400/40 pointer-events-none rounded-sm">
                 <div className="absolute top-0 left-0 w-2 h-2 border-t-2 border-l-2 border-blue-400" />
                 <div className="absolute top-0 right-0 w-2 h-2 border-t-2 border-r-2 border-blue-400" />
@@ -180,30 +173,10 @@ const App: React.FC = () => {
           </div>
         </section>
 
-        {/* Assignment Tracker Section - Restricted to ADMIN */}
-        {user.role === 'ADMIN' ? (
-          <section id="assignment-tracker" className="max-w-[1800px] mx-auto pt-24 border-t border-white/5">
-            <Tracker currentUserRole={user.role} />
-          </section>
-        ) : (
-          <section className="max-w-[1800px] mx-auto py-32 border-t border-white/5 flex flex-col items-center justify-center relative overflow-hidden glass rounded-sm">
-             <div className="absolute inset-0 bg-blue-900/[0.02] pointer-events-none" />
-             <div className="relative z-10 text-center flex flex-col items-center">
-                <div className="w-20 h-20 border border-zinc-800 flex items-center justify-center rounded-sm mb-10 text-zinc-800">
-                   <i className="fa-solid fa-lock text-4xl"></i>
-                </div>
-                <h3 className="text-3xl font-black uppercase tracking-tighter text-zinc-700 mb-6 italic">Restricted_Sub_Sector</h3>
-                <p className="mono text-[10px] uppercase tracking-[0.5em] text-zinc-600 max-w-lg leading-relaxed font-bold">
-                   Assignment_Ledger requires Command Level [ADMIN] authorization. <br /> Access attempted from Node USER was denied.
-                </p>
-                <div className="mt-12 flex gap-4">
-                  <div className="w-2 h-2 rounded-full bg-rose-500/20" />
-                  <div className="w-2 h-2 rounded-full bg-rose-500/20" />
-                  <div className="w-2 h-2 rounded-full bg-rose-500/20" />
-                </div>
-             </div>
-          </section>
-        )}
+        {/* Assignment Tracker Section - Visible to all, but restricted actions inside Tracker component */}
+        <section id="assignment-tracker" className="max-w-[1800px] mx-auto pt-24 border-t border-white/5">
+          <Tracker currentUserRole={user.role} />
+        </section>
       </main>
 
       {/* HUD Floating Layer */}
