@@ -3,6 +3,7 @@ import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { Assignment, AssignmentStatus, AssignmentUpdate, AuthRole } from '../types';
 import AssignmentForm from './AssignmentForm';
 import AssignmentCard from './AssignmentCard';
+import { dbService } from '../services/dbService';
 
 interface TrackerProps {
   currentUserRole: AuthRole;
@@ -15,33 +16,42 @@ const Tracker: React.FC<TrackerProps> = ({ currentUserRole }) => {
   const [filter, setFilter] = useState<string>('All');
   const [search, setSearch] = useState('');
   const [sortBy, setSortBy] = useState<'date' | 'status' | 'name'>('date');
-  const [isInitialized, setIsInitialized] = useState(false);
+  const [isSyncing, setIsSyncing] = useState(false);
 
-  // Persistence - Load
-  useEffect(() => {
-    const saved = localStorage.getItem('MISSION_LEDGER_V2');
-    if (saved) {
-      try {
-        const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed)) {
-          setAssignments(parsed);
+  const loadData = useCallback(async (showIndicator = true) => {
+    if (showIndicator) setIsSyncing(true);
+    
+    // Attempt DB pull first
+    const dbData = await dbService.getAssignments();
+    
+    if (dbData && dbData.length > 0) {
+      setAssignments(dbData);
+      localStorage.setItem('MISSION_LEDGER_V2', JSON.stringify(dbData));
+    } else {
+      // Local fallback
+      const saved = localStorage.getItem('MISSION_LEDGER_V2');
+      if (saved) {
+        try {
+          const parsed = JSON.parse(saved);
+          if (Array.isArray(parsed)) setAssignments(parsed);
+        } catch (e) {
+          console.error("Local data parse error", e);
         }
-      } catch (e) {
-        console.error("Failed to parse mission ledger", e);
       }
     }
-    setIsInitialized(true);
+    if (showIndicator) setIsSyncing(false);
   }, []);
 
-  // Persistence - Save (only after initial load)
   useEffect(() => {
-    if (isInitialized) {
-      localStorage.setItem('MISSION_LEDGER_V2', JSON.stringify(assignments));
-    }
-  }, [assignments, isInitialized]);
+    loadData();
+    // Background polling for cross-user updates
+    const interval = setInterval(() => loadData(false), 20000);
+    return () => clearInterval(interval);
+  }, [loadData]);
 
-  const handleAddOrUpdate = useCallback((assignment: Assignment) => {
-    console.log("Saving assignment:", assignment);
+  const handleAddOrUpdate = useCallback(async (assignment: Assignment) => {
+    setIsSyncing(true);
+    // Optimistic UI Update
     setAssignments(prev => {
       const exists = prev.find(a => a.taskId === assignment.taskId);
       if (exists) {
@@ -49,11 +59,17 @@ const Tracker: React.FC<TrackerProps> = ({ currentUserRole }) => {
       }
       return [assignment, ...prev];
     });
+
+    await dbService.saveAssignment(assignment);
+    setIsSyncing(false);
     setIsFormOpen(false);
     setEditingAssignment(null);
   }, []);
 
-  const handleStatusUpdate = (taskId: string, newStatus: AssignmentStatus, comment: string) => {
+  const handleStatusUpdate = async (taskId: string, newStatus: AssignmentStatus, comment: string) => {
+    setIsSyncing(true);
+    let updatedAssignment: Assignment | null = null;
+
     setAssignments(prev => prev.map(a => {
       if (a.taskId === taskId) {
         const newUpdate: AssignmentUpdate = {
@@ -61,24 +77,33 @@ const Tracker: React.FC<TrackerProps> = ({ currentUserRole }) => {
           timestamp: new Date().toISOString(),
           text: comment,
           status: newStatus,
-          author: 'SYSTEM_ADMIN'
+          author: currentUserRole === 'ADMIN' ? 'SYSTEM_ADMIN' : 'AGENT_NODE'
         };
         
-        return {
+        updatedAssignment = {
           ...a,
           status: newStatus,
           lastUpdated: new Date().toISOString(),
           updates: [...a.updates, newUpdate]
         };
+        return updatedAssignment;
       }
       return a;
     }));
+
+    if (updatedAssignment) {
+      await dbService.saveAssignment(updatedAssignment);
+    }
+    setIsSyncing(false);
   };
 
-  const handleDelete = (taskId: string) => {
+  const handleDelete = async (taskId: string) => {
     if (currentUserRole !== 'ADMIN') return;
     if (window.confirm(`DANGER: PURGE RECORD ${taskId}? This action is irreversible.`)) {
+      setIsSyncing(true);
       setAssignments(prev => prev.filter(a => a.taskId !== taskId));
+      await dbService.deleteAssignment(taskId);
+      setIsSyncing(false);
     }
   };
 
@@ -116,24 +141,24 @@ const Tracker: React.FC<TrackerProps> = ({ currentUserRole }) => {
     total: assignments.length,
     completed: assignments.filter(a => a.status === 'Completed').length,
     pending: assignments.filter(a => a.status === 'Pending' || a.status === 'InProgress').length,
-    blocked: assignments.filter(a => a.status === 'Blocked').length,
   }), [assignments]);
-
-  const openAddForm = () => {
-    console.log("Opening Add Entry Form...");
-    setEditingAssignment(null);
-    setIsFormOpen(true);
-  };
 
   return (
     <div className="space-y-12 animate-hud">
-      {/* HUD Controls */}
       <div className="flex flex-col lg:flex-row justify-between items-end lg:items-center gap-6 border-b border-white/5 pb-8 relative z-20">
         <div>
           <h2 className="text-4xl md:text-5xl font-black uppercase tracking-tighter mb-2 italic glow-text">Assignment_Ledger</h2>
-          <p className="text-zinc-600 mono text-[10px] md:text-xs uppercase tracking-widest opacity-60">
-            SYNCHRONIZED DAILY LOG // ACTIVE_OPS: {stats.pending} // EFFICIENCY: {stats.total ? Math.round((stats.completed / stats.total) * 100) : 0}%
-          </p>
+          <div className="text-zinc-600 mono text-[10px] md:text-xs uppercase tracking-widest opacity-60 flex items-center gap-4">
+            <span>ACTIVE_OPS: {stats.pending}</span>
+            <div className="w-1 h-1 rounded-full bg-zinc-800" />
+            <span className="flex items-center gap-1.5">
+              {isSyncing ? (
+                <><i className="fa-solid fa-rotate animate-spin text-blue-400"></i> <span className="text-blue-400">NODE_SYNC_ACTIVE</span></>
+              ) : (
+                <><i className="fa-solid fa-cloud text-emerald-500/50"></i> NODE_LINK_STABLE</>
+              )}
+            </span>
+          </div>
         </div>
         
         <div className="flex flex-wrap gap-4 items-center justify-end w-full lg:w-auto">
@@ -150,7 +175,7 @@ const Tracker: React.FC<TrackerProps> = ({ currentUserRole }) => {
 
           {currentUserRole === 'ADMIN' && (
             <button 
-              onClick={openAddForm}
+              onClick={() => setIsFormOpen(true)}
               className="flex items-center gap-2 px-6 py-2.5 rounded-sm font-black uppercase text-xs tracking-[0.2em] transition-all active:scale-95 border border-blue-500/50 shadow-[0_0_20px_rgba(59,130,246,0.1)] bg-blue-600 text-white hover:bg-blue-500 hover:shadow-[0_0_30px_rgba(59,130,246,0.4)] cursor-pointer relative z-30"
             >
               <i className="fa-solid fa-plus"></i>
@@ -158,59 +183,32 @@ const Tracker: React.FC<TrackerProps> = ({ currentUserRole }) => {
             </button>
           )}
 
-          <button 
-            onClick={exportToCSV}
-            className="w-10 h-10 flex items-center justify-center border border-white/10 rounded-sm hover:bg-white/5 transition-colors text-zinc-400 hover:text-white"
-            title="Export CSV"
-          >
+          <button onClick={exportToCSV} className="w-10 h-10 flex items-center justify-center border border-white/10 rounded-sm hover:bg-white/5 transition-colors text-zinc-400 hover:text-white">
             <i className="fa-solid fa-file-export"></i>
           </button>
         </div>
       </div>
 
-      {/* Grid Filters */}
       <div className="flex flex-wrap gap-6 items-center border-y border-white/5 py-8 relative z-10">
         <div className="flex gap-4 items-center">
           <span className="mono text-[10px] uppercase text-zinc-600 tracking-widest font-bold opacity-60">FILTER_SECTOR:</span>
           <div className="flex gap-3">
             {['All', 'InProgress', 'Pending', 'Completed', 'Blocked'].map(f => (
-              <button
-                key={f}
-                onClick={() => setFilter(f)}
-                className={`text-[9px] mono uppercase tracking-[0.2em] px-4 py-1.5 rounded-sm border transition-all font-black ${filter === f ? 'bg-blue-500/20 border-blue-400 text-blue-400 shadow-[0_0_15px_rgba(59,130,246,0.2)]' : 'border-white/5 text-zinc-700 hover:text-zinc-200 hover:border-white/10'}`}
-              >
+              <button key={f} onClick={() => setFilter(f)} className={`text-[9px] mono uppercase tracking-[0.2em] px-4 py-1.5 rounded-sm border transition-all font-black ${filter === f ? 'bg-blue-500/20 border-blue-400 text-blue-400 shadow-[0_0_15px_rgba(59,130,246,0.2)]' : 'border-white/5 text-zinc-700 hover:text-zinc-200 hover:border-white/10'}`}>
                 {f === 'InProgress' ? 'IN_PROGRESS' : f.toUpperCase()}
               </button>
             ))}
           </div>
         </div>
-        
-        <div className="flex gap-4 items-center ml-auto">
-          <span className="mono text-[10px] uppercase text-zinc-600 tracking-widest font-bold opacity-60">SEQUENCE_BY:</span>
-          <button 
-            onClick={() => {
-              const order: Array<'date' | 'status' | 'name'> = ['date', 'status', 'name'];
-              const next = order[(order.indexOf(sortBy) + 1) % order.length];
-              setSortBy(next);
-            }}
-            className="text-[9px] mono uppercase text-blue-400 hover:text-blue-300 transition-colors font-black border-b border-blue-500/30 pb-0.5 tracking-widest"
-          >
-            {sortBy === 'date' ? 'LAST_SYNC_TIME' : sortBy === 'status' ? 'PROTOCOL_STATUS' : 'AGENT_ID'}
-          </button>
-        </div>
       </div>
 
-      {/* Assignments Grid */}
       {filteredAssignments.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 relative z-10">
           {filteredAssignments.map(a => (
             <AssignmentCard 
               key={a.taskId} 
               assignment={a} 
-              onEdit={(a) => {
-                setEditingAssignment(a);
-                setIsFormOpen(true);
-              }}
+              onEdit={(a) => { setEditingAssignment(a); setIsFormOpen(true); }}
               onUpdateStatus={handleStatusUpdate}
               onDelete={handleDelete}
               currentUserRole={currentUserRole}
@@ -219,38 +217,21 @@ const Tracker: React.FC<TrackerProps> = ({ currentUserRole }) => {
         </div>
       ) : (
         <div className="py-40 text-center flex flex-col items-center justify-center opacity-40 relative z-10">
-          <div className="relative mb-8">
-            <div className="absolute inset-0 bg-blue-500/5 blur-[80px] rounded-full scale-[2.5]" />
-             <i className="fa-solid fa-satellite text-zinc-800 text-8xl relative animate-pulse"></i>
-          </div>
-          <p className="text-zinc-600 mono text-[10px] uppercase tracking-[0.5em] max-w-lg leading-relaxed text-center font-bold">
-            NO ACTIVE ASSIGNMENTS IN SECTOR. <br />
-            SYSTEM STANDBY FOR MISSION DATA.
+          <i className="fa-solid fa-satellite text-zinc-800 text-8xl relative animate-pulse mb-8"></i>
+          <p className="text-zinc-600 mono text-[10px] uppercase tracking-[0.5em] font-bold">
+            {isSyncing ? 'SYNCHRONIZING_CORE_DATA...' : 'NO ACTIVE MISSION_DATA DETECTED.'}
           </p>
         </div>
       )}
 
-      {/* Assignment Form Modal Overlay - Moved to bottom for clear stacking */}
       {isFormOpen && (
         <div className="fixed inset-0 z-[200] flex items-center justify-center p-6 overflow-y-auto">
-          {/* Backdrop */}
-          <div 
-            className="fixed inset-0 bg-black/80 backdrop-blur-sm transition-opacity" 
-            onClick={() => {
-              setIsFormOpen(false);
-              setEditingAssignment(null);
-            }}
-          />
-          
-          {/* Content */}
+          <div className="fixed inset-0 bg-black/80 backdrop-blur-sm" onClick={() => setIsFormOpen(false)} />
           <div className="w-full max-w-4xl relative z-[210] animate-in fade-in zoom-in-95 duration-300">
             <AssignmentForm 
               onSubmit={handleAddOrUpdate}
               editingAssignment={editingAssignment}
-              onCancel={() => {
-                setIsFormOpen(false);
-                setEditingAssignment(null);
-              }}
+              onCancel={() => { setIsFormOpen(false); setEditingAssignment(null); }}
             />
           </div>
         </div>
