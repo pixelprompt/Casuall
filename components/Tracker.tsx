@@ -4,6 +4,7 @@ import { Assignment, AssignmentStatus, AssignmentUpdate, AuthRole } from '../typ
 import AssignmentForm from './AssignmentForm';
 import AssignmentCard from './AssignmentCard';
 import { dbService } from '../services/dbService';
+import { TEAM_DATA } from '../constants';
 
 interface TrackerProps {
   currentUserRole: AuthRole;
@@ -16,6 +17,7 @@ const Tracker: React.FC<TrackerProps> = ({ currentUserRole }) => {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingAssignment, setEditingAssignment] = useState<Assignment | null>(null);
   const [filter, setFilter] = useState<string>('All');
+  const [personFilter, setPersonFilter] = useState<string>('All Agents');
   const [search, setSearch] = useState('');
   const [sortBy, setSortBy] = useState<'date' | 'status' | 'name'>('date');
   const [isSyncing, setIsSyncing] = useState(false);
@@ -24,7 +26,6 @@ const Tracker: React.FC<TrackerProps> = ({ currentUserRole }) => {
   const loadData = useCallback(async (showIndicator = true) => {
     if (showIndicator) setIsSyncing(true);
     
-    // Step 1: Immediate local load for speed
     const saved = localStorage.getItem(STORAGE_KEY);
     if (saved) {
       try {
@@ -35,15 +36,12 @@ const Tracker: React.FC<TrackerProps> = ({ currentUserRole }) => {
       }
     }
 
-    // Step 2: Fetch from Neon DB to sync state
     if (dbService.isConfigured()) {
       const dbData = await dbService.getAssignments();
-      if (dbData && dbData.length > 0) {
+      if (dbData) {
         setAssignments(dbData);
         localStorage.setItem(STORAGE_KEY, JSON.stringify(dbData));
         setDbStatus('CONNECTED');
-      } else if (dbData.length === 0 && dbStatus === 'CONNECTED') {
-        // Table exists but is empty
       } else {
         setDbStatus('OFFLINE');
       }
@@ -66,15 +64,12 @@ const Tracker: React.FC<TrackerProps> = ({ currentUserRole }) => {
     };
     initialize();
     
-    // Background polling for multi-user real-time feel
     const interval = setInterval(() => loadData(false), 30000);
     return () => clearInterval(interval);
   }, [loadData]);
 
   const handleAddOrUpdate = useCallback(async (assignment: Assignment) => {
     setIsSyncing(true);
-    
-    // Optimistic UI + LocalStorage Update
     setAssignments(prev => {
       const exists = prev.find(a => a.taskId === assignment.taskId);
       const next = exists 
@@ -84,14 +79,9 @@ const Tracker: React.FC<TrackerProps> = ({ currentUserRole }) => {
       return next;
     });
 
-    // Cloud Sync
     const success = await dbService.saveAssignment(assignment);
-    if (!success) {
-      console.warn("Cloud Sync failed, using local persistence.");
-      setDbStatus('OFFLINE');
-    } else {
-      setDbStatus('CONNECTED');
-    }
+    if (!success) setDbStatus('OFFLINE');
+    else setDbStatus('CONNECTED');
 
     setIsSyncing(false);
     setIsFormOpen(false);
@@ -136,7 +126,7 @@ const Tracker: React.FC<TrackerProps> = ({ currentUserRole }) => {
 
   const handleDelete = async (taskId: string) => {
     if (currentUserRole !== 'ADMIN') return;
-    if (window.confirm(`DANGER: PURGE RECORD ${taskId}? This action is irreversible.`)) {
+    if (window.confirm(`DANGER: PURGE RECORD ${taskId}?`)) {
       setIsSyncing(true);
       setAssignments(prev => {
         const filtered = prev.filter(a => a.taskId !== taskId);
@@ -158,7 +148,7 @@ const Tracker: React.FC<TrackerProps> = ({ currentUserRole }) => {
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.download = `LEDGER_EXPORT_${new Date().toISOString().split('T')[0]}.csv`;
+    link.download = `LEDGER_${new Date().getTime()}.csv`;
     link.click();
   };
 
@@ -166,9 +156,10 @@ const Tracker: React.FC<TrackerProps> = ({ currentUserRole }) => {
     return assignments
       .filter(a => {
         const matchesStatus = filter === 'All' || a.status === filter;
+        const matchesPerson = personFilter === 'All Agents' || a.assignedTo === personFilter;
         const matchesSearch = a.taskTitle.toLowerCase().includes(search.toLowerCase()) || 
                              a.assignedTo.toLowerCase().includes(search.toLowerCase());
-        return matchesStatus && matchesSearch;
+        return matchesStatus && matchesPerson && matchesSearch;
       })
       .sort((a, b) => {
         if (sortBy === 'date') return new Date(b.lastUpdated).getTime() - new Date(a.lastUpdated).getTime();
@@ -176,7 +167,7 @@ const Tracker: React.FC<TrackerProps> = ({ currentUserRole }) => {
         if (sortBy === 'name') return a.assignedTo.localeCompare(b.assignedTo);
         return 0;
       });
-  }, [assignments, filter, search, sortBy]);
+  }, [assignments, filter, personFilter, search, sortBy]);
 
   const stats = useMemo(() => ({
     total: assignments.length,
@@ -185,24 +176,24 @@ const Tracker: React.FC<TrackerProps> = ({ currentUserRole }) => {
   }), [assignments]);
 
   return (
-    <div className="space-y-8 md:space-y-12 animate-hud">
-      <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 border-b border-white/5 pb-8 relative z-20">
-        <div className="w-full lg:w-auto">
-          <h2 className="text-3xl md:text-5xl font-black uppercase tracking-tighter mb-2 italic glow-text text-white">Assignment_Ledger</h2>
-          <div className="text-zinc-600 mono text-[8px] md:text-xs uppercase tracking-widest opacity-60 flex flex-wrap items-center gap-x-4 gap-y-2">
+    <div className="space-y-6 md:space-y-12 animate-hud">
+      {/* Header Section */}
+      <div className="flex flex-col gap-6 border-b border-white/5 pb-8 relative z-20">
+        <div className="w-full">
+          <h2 className="text-4xl md:text-5xl font-black uppercase tracking-tighter mb-2 italic glow-text text-white leading-none">
+            Assignment_Ledger
+          </h2>
+          <div className="text-zinc-600 mono text-[10px] uppercase tracking-widest opacity-60 flex flex-wrap items-center gap-x-4 gap-y-2 font-bold">
             <span>ACTIVE_OPS: {stats.pending}</span>
-            <div className="w-1 h-1 rounded-full bg-zinc-800 hidden md:block" />
             <span className="flex items-center gap-1.5">
               {isSyncing ? (
-                <><i className="fa-solid fa-rotate animate-spin text-blue-400"></i> <span className="text-blue-400">NODE_SYNC</span></>
+                <><i className="fa-solid fa-rotate animate-spin text-blue-400"></i> SYNCING</>
               ) : (
                 <>
                   {dbStatus === 'CONNECTED' ? (
-                    <><i className="fa-solid fa-cloud text-emerald-500/50"></i> CORE_LINK_STABLE</>
-                  ) : dbStatus === 'CONNECTING' ? (
-                    <><i className="fa-solid fa-satellite-dish animate-pulse text-amber-500"></i> HANDSHAKE...</>
+                    <><div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" /> ONLINE</>
                   ) : (
-                    <><i className="fa-solid fa-cloud-slash text-rose-500"></i> OFFLINE_MODE</>
+                    <><div className="w-1.5 h-1.5 rounded-full bg-rose-500" /> OFFLINE</>
                   )}
                 </>
               )}
@@ -210,47 +201,74 @@ const Tracker: React.FC<TrackerProps> = ({ currentUserRole }) => {
           </div>
         </div>
         
-        <div className="flex flex-wrap md:flex-nowrap gap-3 items-center justify-start md:justify-end w-full lg:w-auto">
-          <div className="relative group w-full md:w-auto">
+        {/* Search and Action Row */}
+        <div className="flex flex-col sm:flex-row gap-4 w-full">
+          <div className="relative group flex-grow">
             <input 
               type="text"
-              className="bg-zinc-900/40 border border-white/10 px-4 py-2.5 pl-10 rounded-sm text-sm mono text-zinc-300 focus:border-blue-500/50 outline-none w-full md:w-64 transition-all"
+              className="bg-zinc-900/40 border border-white/10 px-4 py-3 pl-10 rounded-sm text-sm mono text-zinc-300 focus:border-blue-500/50 outline-none w-full transition-all"
               placeholder="Query Ledger..."
               value={search}
               onChange={e => setSearch(e.target.value)}
             />
-            <i className="fa-solid fa-search absolute left-3 top-1/2 -translate-y-1/2 text-zinc-600 group-focus-within:text-blue-500 transition-colors"></i>
+            <i className="fa-solid fa-search absolute left-3 top-1/2 -translate-y-1/2 text-zinc-600 group-focus-within:text-blue-500"></i>
           </div>
 
-          {currentUserRole === 'ADMIN' && (
-            <button 
-              onClick={() => { setEditingAssignment(null); setIsFormOpen(true); }}
-              className="flex items-center justify-center gap-2 px-6 py-2.5 rounded-sm font-black uppercase text-[10px] md:text-xs tracking-[0.2em] transition-all active:scale-95 border border-blue-500/50 shadow-[0_0_20px_rgba(59,130,246,0.1)] bg-blue-600 text-white hover:bg-blue-500 hover:shadow-[0_0_30px_rgba(59,130,246,0.4)] cursor-pointer relative z-30 flex-grow md:flex-grow-0"
-            >
-              <i className="fa-solid fa-plus"></i>
-              ADD_ENTRY
+          <div className="flex gap-2">
+            {currentUserRole === 'ADMIN' && (
+              <button 
+                onClick={() => { setEditingAssignment(null); setIsFormOpen(true); }}
+                className="flex-grow sm:flex-grow-0 flex items-center justify-center gap-2 px-6 py-3 rounded-sm font-black uppercase text-xs tracking-widest border border-blue-500/50 bg-blue-600 text-white hover:bg-blue-500 active:scale-95 transition-all shadow-[0_0_20px_rgba(59,130,246,0.3)]"
+              >
+                <i className="fa-solid fa-plus"></i>
+                NEW_TASK
+              </button>
+            )}
+            <button onClick={exportToCSV} className="w-12 h-12 flex items-center justify-center border border-white/10 rounded-sm hover:bg-white/5 text-zinc-400 hover:text-white transition-colors">
+              <i className="fa-solid fa-file-export"></i>
             </button>
-          )}
-
-          <button onClick={exportToCSV} className="w-10 h-10 flex items-center justify-center border border-white/10 rounded-sm hover:bg-white/5 transition-colors text-zinc-400 hover:text-white shrink-0">
-            <i className="fa-solid fa-file-export"></i>
-          </button>
+          </div>
         </div>
       </div>
 
-      <div className="flex flex-col md:flex-row gap-4 items-start md:items-center border-y border-white/5 py-6 md:py-8 relative z-10">
-        <span className="mono text-[8px] md:text-[10px] uppercase text-zinc-600 tracking-widest font-bold opacity-60">FILTER_SECTOR:</span>
-        <div className="flex flex-wrap gap-2 md:gap-3">
-          {['All', 'InProgress', 'Pending', 'Completed', 'Blocked'].map(f => (
-            <button key={f} onClick={() => setFilter(f)} className={`text-[8px] md:text-[9px] mono uppercase tracking-[0.1em] md:tracking-[0.2em] px-3 md:px-4 py-1.5 rounded-sm border transition-all font-black ${filter === f ? 'bg-blue-500/20 border-blue-400 text-blue-400 shadow-[0_0_15px_rgba(59,130,246,0.2)]' : 'border-white/5 text-zinc-700 hover:text-zinc-200 hover:border-white/10'}`}>
-              {f === 'InProgress' ? 'IN_PROGRESS' : f.toUpperCase()}
-            </button>
-          ))}
+      {/* Filter Section - Mobile Responsive Scrolling */}
+      <div className="space-y-6 md:space-y-8 py-2 md:py-4">
+        {/* Status Filter Row */}
+        <div className="flex flex-col gap-3">
+          <span className="mono text-[10px] uppercase text-zinc-500 tracking-widest font-black opacity-80">FILTER_SECTOR:</span>
+          <div className="flex overflow-x-auto pb-4 md:pb-0 gap-2 no-scrollbar -mx-4 px-4 md:mx-0 md:px-0">
+            {['All', 'InProgress', 'Pending', 'Completed', 'Blocked'].map(f => (
+              <button 
+                key={f} 
+                onClick={() => setFilter(f)} 
+                className={`flex-shrink-0 text-[10px] mono uppercase tracking-wider px-5 py-2 rounded-sm border transition-all font-black ${filter === f ? 'bg-blue-500/20 border-blue-400 text-blue-400 shadow-[0_0_15px_rgba(59,130,246,0.2)]' : 'border-white/5 text-zinc-700 hover:text-zinc-200 hover:border-white/10'}`}
+              >
+                {f === 'InProgress' ? 'IN_PROGRESS' : f.toUpperCase()}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Agent Filter Row */}
+        <div className="flex flex-col gap-3">
+          <span className="mono text-[10px] uppercase text-zinc-500 tracking-widest font-black opacity-80">FILTER_AGENT:</span>
+          <div className="flex overflow-x-auto pb-4 md:pb-0 gap-2 no-scrollbar -mx-4 px-4 md:mx-0 md:px-0">
+            {['All Agents', ...TEAM_DATA.map(m => m.name)].map(name => (
+              <button 
+                key={name} 
+                onClick={() => setPersonFilter(name)} 
+                className={`flex-shrink-0 text-[10px] mono uppercase tracking-wider px-5 py-2 rounded-sm border transition-all font-black ${personFilter === name ? 'bg-indigo-500/20 border-indigo-400 text-indigo-400 shadow-[0_0_15px_rgba(99,102,241,0.2)]' : 'border-white/5 text-zinc-700 hover:text-zinc-200 hover:border-white/10'}`}
+              >
+                {name === 'All Agents' ? 'ALL_AGENTS' : name.toUpperCase()}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 
+      {/* Cards Grid */}
       {filteredAssignments.length > 0 ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 md:gap-8 relative z-10">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 relative z-10">
           {filteredAssignments.map(a => (
             <AssignmentCard 
               key={a.taskId} 
@@ -263,17 +281,18 @@ const Tracker: React.FC<TrackerProps> = ({ currentUserRole }) => {
           ))}
         </div>
       ) : (
-        <div className="py-24 md:py-40 text-center flex flex-col items-center justify-center opacity-40 relative z-10">
-          <i className="fa-solid fa-satellite text-zinc-800 text-6xl md:text-8xl relative animate-pulse mb-6 md:mb-8"></i>
-          <p className="text-zinc-600 mono text-[8px] md:text-[10px] uppercase tracking-[0.3em] md:tracking-[0.5em] font-black px-4">
-            {isSyncing ? 'SYNCHRONIZING_CORE_DATA...' : 'NO ACTIVE MISSION_DATA DETECTED.'}
+        <div className="py-24 text-center flex flex-col items-center justify-center opacity-40 relative z-10">
+          <i className="fa-solid fa-satellite text-zinc-800 text-6xl animate-pulse mb-6"></i>
+          <p className="text-zinc-600 mono text-[10px] uppercase tracking-[0.5em] font-black">
+            NO ACTIVE MISSION_DATA DETECTED.
           </p>
         </div>
       )}
 
+      {/* Form Modal */}
       {isFormOpen && (
-        <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 md:p-6 overflow-y-auto">
-          <div className="fixed inset-0 bg-black/90 backdrop-blur-md" onClick={() => setIsFormOpen(false)} />
+        <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 md:p-10 overflow-y-auto">
+          <div className="fixed inset-0 bg-black/95 backdrop-blur-md" onClick={() => setIsFormOpen(false)} />
           <div className="w-full max-w-4xl relative z-[210] animate-in fade-in zoom-in-95 duration-300">
             <AssignmentForm 
               onSubmit={handleAddOrUpdate}
