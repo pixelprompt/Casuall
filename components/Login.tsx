@@ -35,7 +35,7 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
       } else if (username === 'casuall@14' && password === 'casuall@14') {
         onLogin({ username, role: 'USER' });
       } else {
-        setError('CRITICAL_ERROR: ACCESS_DENIED_INVALID_TOKEN');
+        setError('CRITICAL_ERROR: INVALID_TOKEN');
         setIsLoggingIn(false);
         setBootSequence(0);
       }
@@ -43,8 +43,8 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
   };
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black overflow-hidden">
-      {/* Background Tech Decor - Radial Glows from screenshot */}
+    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black overflow-hidden px-4">
+      {/* Background Tech Decor */}
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute top-1/2 left-1/2 -translate-x-[70%] -translate-y-1/2 w-[800px] h-[800px] bg-blue-900/20 blur-[150px] rounded-full opacity-40" />
         <div className="absolute top-1/2 left-1/2 translate-x-[20%] -translate-y-1/2 w-[600px] h-[600px] bg-indigo-900/10 blur-[150px] rounded-full opacity-30" />
@@ -57,7 +57,7 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
         </svg>
       </div>
 
-      <div className="relative w-full max-w-md p-12 glass border-white/5 animate-hud">
+      <div className="relative w-full max-w-md p-8 md:p-12 glass border-white/5 animate-hud">
         {/* Main Outer Corners */}
         <div className="absolute top-0 left-0 w-4 h-4 border-t-2 border-l-2 border-blue-500/40" />
         <div className="absolute top-0 right-0 w-4 h-4 border-t-2 border-r-2 border-blue-500/40" />
@@ -65,25 +65,24 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
         <div className="absolute bottom-0 right-0 w-4 h-4 border-b-2 border-r-2 border-blue-500/40" />
 
         <div className="text-center mb-10">
-          <div className="inline-flex items-center gap-3 px-3 py-1 border border-blue-500/30 bg-blue-500/5 rounded-sm mb-8">
+          <div className="inline-flex items-center gap-3 px-3 py-1 border border-blue-500/30 bg-blue-500/5 rounded-sm mb-6 md:mb-8">
             <div className="w-1.5 h-1.5 bg-blue-400 rounded-full animate-pulse" />
             <span className="mono text-[8px] uppercase tracking-[0.4em] text-blue-400 font-black">SECURE_PROTOCOL_V4</span>
           </div>
 
-          {/* Title with Box Frame as seen in screenshot */}
-          <div className="relative inline-block mb-8 px-8 py-4">
+          <div className="relative inline-block mb-6 md:mb-8 px-6 md:px-8 py-3 md:py-4">
              <div className="absolute inset-0 border border-blue-400/60 pointer-events-none" />
-             <h1 className="text-4xl font-black uppercase tracking-tighter italic glow-text text-white leading-none">
+             <h1 className="text-3xl md:text-4xl font-black uppercase tracking-tighter italic glow-text text-white leading-none">
                Casuall_Camping
              </h1>
           </div>
           
-          <p className="text-[9px] mono text-zinc-500 uppercase tracking-[0.3em] font-bold">Identification Required for Node Uplink</p>
+          <p className="text-[8px] md:text-[9px] mono text-zinc-500 uppercase tracking-[0.2em] md:tracking-[0.3em] font-bold">Identification Required</p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-8">
+        <form onSubmit={handleSubmit} className="space-y-6 md:space-y-8">
           <div className="space-y-2">
-            <label className="block text-[8px] mono uppercase text-zinc-600 tracking-[0.3em] font-black">AGENT_IDENTIFIER</label>
+            <label className="block text-[8px] mono uppercase text-zinc-600 tracking-[0.3em] font-black">AGENT_ID</label>
             <div className="relative">
               <input
                 type="text"
@@ -115,7 +114,7 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
           </div>
 
           {error && (
-            <div className="p-4 bg-rose-500/5 border border-rose-500/20 text-rose-400 text-[9px] mono uppercase text-center tracking-widest animate-pulse font-bold">
+            <div className="p-4 bg-rose-500/5 border border-rose-500/20 text-rose-400 text-[8px] md:text-[9px] mono uppercase text-center tracking-widest animate-pulse font-bold">
               <i className="fa-solid fa-triangle-exclamation mr-3"></i>
               {error}
             </div>
@@ -124,7 +123,7 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
           {isLoggingIn && (
             <div className="space-y-2">
               <div className="flex justify-between text-[8px] mono text-blue-400/60 uppercase tracking-widest font-black">
-                <span>Synchronizing_Neural_Link</span>
+                <span>Synchronizing...</span>
                 <span>{Math.min(bootSequence, 100)}%</span>
               </div>
               <div className="h-[2px] w-full bg-white/5 overflow-hidden">
@@ -136,7 +135,7 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
           <button
             type="submit"
             disabled={isLoggingIn}
-            className="w-full bg-[#1e3a8a]/60 hover:bg-[#1e40af] disabled:bg-zinc-900 disabled:text-zinc-700 disabled:border-white/5 text-white py-5 font-black uppercase tracking-[0.4em] text-[10px] transition-all rounded-sm shadow-[0_0_40px_rgba(59,130,246,0.1)] border border-blue-500/30 flex items-center justify-center gap-4 group"
+            className="w-full bg-[#1e3a8a]/60 hover:bg-[#1e40af] disabled:bg-zinc-900 disabled:text-zinc-700 disabled:border-white/5 text-white py-4 md:py-5 font-black uppercase tracking-[0.3em] md:tracking-[0.4em] text-[10px] transition-all rounded-sm shadow-[0_0_40px_rgba(59,130,246,0.1)] border border-blue-500/30 flex items-center justify-center gap-4 group"
           >
             {isLoggingIn ? (
               <i className="fa-solid fa-circle-notch animate-spin text-lg"></i>
@@ -149,9 +148,9 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
           </button>
         </form>
 
-        <div className="mt-12 text-center pt-8 border-t border-white/5">
+        <div className="mt-8 md:mt-12 text-center pt-8 border-t border-white/5">
           <span className="text-[8px] mono text-zinc-700 uppercase tracking-[0.3em] leading-relaxed block font-bold">
-            RESTRICTED TERMINAL // KMV CORP <br />
+            RESTRICTED TERMINAL // KMV CORP <br className="md:hidden" />
             UNAUTHORIZED ACCESS IS FELONY
           </span>
         </div>

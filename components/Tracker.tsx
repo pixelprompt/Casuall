@@ -185,24 +185,24 @@ const Tracker: React.FC<TrackerProps> = ({ currentUserRole }) => {
   }), [assignments]);
 
   return (
-    <div className="space-y-12 animate-hud">
-      <div className="flex flex-col lg:flex-row justify-between items-end lg:items-center gap-6 border-b border-white/5 pb-8 relative z-20">
-        <div>
-          <h2 className="text-4xl md:text-5xl font-black uppercase tracking-tighter mb-2 italic glow-text text-white">Assignment_Ledger</h2>
-          <div className="text-zinc-600 mono text-[10px] md:text-xs uppercase tracking-widest opacity-60 flex flex-wrap items-center gap-4">
+    <div className="space-y-8 md:space-y-12 animate-hud">
+      <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 border-b border-white/5 pb-8 relative z-20">
+        <div className="w-full lg:w-auto">
+          <h2 className="text-3xl md:text-5xl font-black uppercase tracking-tighter mb-2 italic glow-text text-white">Assignment_Ledger</h2>
+          <div className="text-zinc-600 mono text-[8px] md:text-xs uppercase tracking-widest opacity-60 flex flex-wrap items-center gap-x-4 gap-y-2">
             <span>ACTIVE_OPS: {stats.pending}</span>
-            <div className="w-1 h-1 rounded-full bg-zinc-800" />
+            <div className="w-1 h-1 rounded-full bg-zinc-800 hidden md:block" />
             <span className="flex items-center gap-1.5">
               {isSyncing ? (
-                <><i className="fa-solid fa-rotate animate-spin text-blue-400"></i> <span className="text-blue-400">NODE_SYNC_ACTIVE</span></>
+                <><i className="fa-solid fa-rotate animate-spin text-blue-400"></i> <span className="text-blue-400">NODE_SYNC</span></>
               ) : (
                 <>
                   {dbStatus === 'CONNECTED' ? (
-                    <><i className="fa-solid fa-cloud text-emerald-500/50"></i> NEON_CORE_LINK_STABLE</>
+                    <><i className="fa-solid fa-cloud text-emerald-500/50"></i> CORE_LINK_STABLE</>
                   ) : dbStatus === 'CONNECTING' ? (
-                    <><i className="fa-solid fa-satellite-dish animate-pulse text-amber-500"></i> HANDSHAKE_INITIALIZING...</>
+                    <><i className="fa-solid fa-satellite-dish animate-pulse text-amber-500"></i> HANDSHAKE...</>
                   ) : (
-                    <><i className="fa-solid fa-cloud-slash text-rose-500"></i> OFFLINE_STORAGE_ONLY</>
+                    <><i className="fa-solid fa-cloud-slash text-rose-500"></i> OFFLINE_MODE</>
                   )}
                 </>
               )}
@@ -210,8 +210,8 @@ const Tracker: React.FC<TrackerProps> = ({ currentUserRole }) => {
           </div>
         </div>
         
-        <div className="flex flex-wrap gap-4 items-center justify-end w-full lg:w-auto">
-          <div className="relative group">
+        <div className="flex flex-wrap md:flex-nowrap gap-3 items-center justify-start md:justify-end w-full lg:w-auto">
+          <div className="relative group w-full md:w-auto">
             <input 
               type="text"
               className="bg-zinc-900/40 border border-white/10 px-4 py-2.5 pl-10 rounded-sm text-sm mono text-zinc-300 focus:border-blue-500/50 outline-none w-full md:w-64 transition-all"
@@ -225,34 +225,32 @@ const Tracker: React.FC<TrackerProps> = ({ currentUserRole }) => {
           {currentUserRole === 'ADMIN' && (
             <button 
               onClick={() => { setEditingAssignment(null); setIsFormOpen(true); }}
-              className="flex items-center gap-2 px-6 py-2.5 rounded-sm font-black uppercase text-xs tracking-[0.2em] transition-all active:scale-95 border border-blue-500/50 shadow-[0_0_20px_rgba(59,130,246,0.1)] bg-blue-600 text-white hover:bg-blue-500 hover:shadow-[0_0_30px_rgba(59,130,246,0.4)] cursor-pointer relative z-30"
+              className="flex items-center justify-center gap-2 px-6 py-2.5 rounded-sm font-black uppercase text-[10px] md:text-xs tracking-[0.2em] transition-all active:scale-95 border border-blue-500/50 shadow-[0_0_20px_rgba(59,130,246,0.1)] bg-blue-600 text-white hover:bg-blue-500 hover:shadow-[0_0_30px_rgba(59,130,246,0.4)] cursor-pointer relative z-30 flex-grow md:flex-grow-0"
             >
               <i className="fa-solid fa-plus"></i>
               ADD_ENTRY
             </button>
           )}
 
-          <button onClick={exportToCSV} className="w-10 h-10 flex items-center justify-center border border-white/10 rounded-sm hover:bg-white/5 transition-colors text-zinc-400 hover:text-white">
+          <button onClick={exportToCSV} className="w-10 h-10 flex items-center justify-center border border-white/10 rounded-sm hover:bg-white/5 transition-colors text-zinc-400 hover:text-white shrink-0">
             <i className="fa-solid fa-file-export"></i>
           </button>
         </div>
       </div>
 
-      <div className="flex flex-wrap gap-6 items-center border-y border-white/5 py-8 relative z-10">
-        <div className="flex gap-4 items-center">
-          <span className="mono text-[10px] uppercase text-zinc-600 tracking-widest font-bold opacity-60">FILTER_SECTOR:</span>
-          <div className="flex flex-wrap gap-3">
-            {['All', 'InProgress', 'Pending', 'Completed', 'Blocked'].map(f => (
-              <button key={f} onClick={() => setFilter(f)} className={`text-[9px] mono uppercase tracking-[0.2em] px-4 py-1.5 rounded-sm border transition-all font-black ${filter === f ? 'bg-blue-500/20 border-blue-400 text-blue-400 shadow-[0_0_15px_rgba(59,130,246,0.2)]' : 'border-white/5 text-zinc-700 hover:text-zinc-200 hover:border-white/10'}`}>
-                {f === 'InProgress' ? 'IN_PROGRESS' : f.toUpperCase()}
-              </button>
-            ))}
-          </div>
+      <div className="flex flex-col md:flex-row gap-4 items-start md:items-center border-y border-white/5 py-6 md:py-8 relative z-10">
+        <span className="mono text-[8px] md:text-[10px] uppercase text-zinc-600 tracking-widest font-bold opacity-60">FILTER_SECTOR:</span>
+        <div className="flex flex-wrap gap-2 md:gap-3">
+          {['All', 'InProgress', 'Pending', 'Completed', 'Blocked'].map(f => (
+            <button key={f} onClick={() => setFilter(f)} className={`text-[8px] md:text-[9px] mono uppercase tracking-[0.1em] md:tracking-[0.2em] px-3 md:px-4 py-1.5 rounded-sm border transition-all font-black ${filter === f ? 'bg-blue-500/20 border-blue-400 text-blue-400 shadow-[0_0_15px_rgba(59,130,246,0.2)]' : 'border-white/5 text-zinc-700 hover:text-zinc-200 hover:border-white/10'}`}>
+              {f === 'InProgress' ? 'IN_PROGRESS' : f.toUpperCase()}
+            </button>
+          ))}
         </div>
       </div>
 
       {filteredAssignments.length > 0 ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 relative z-10">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 md:gap-8 relative z-10">
           {filteredAssignments.map(a => (
             <AssignmentCard 
               key={a.taskId} 
@@ -265,17 +263,17 @@ const Tracker: React.FC<TrackerProps> = ({ currentUserRole }) => {
           ))}
         </div>
       ) : (
-        <div className="py-40 text-center flex flex-col items-center justify-center opacity-40 relative z-10">
-          <i className="fa-solid fa-satellite text-zinc-800 text-8xl relative animate-pulse mb-8"></i>
-          <p className="text-zinc-600 mono text-[10px] uppercase tracking-[0.5em] font-black">
+        <div className="py-24 md:py-40 text-center flex flex-col items-center justify-center opacity-40 relative z-10">
+          <i className="fa-solid fa-satellite text-zinc-800 text-6xl md:text-8xl relative animate-pulse mb-6 md:mb-8"></i>
+          <p className="text-zinc-600 mono text-[8px] md:text-[10px] uppercase tracking-[0.3em] md:tracking-[0.5em] font-black px-4">
             {isSyncing ? 'SYNCHRONIZING_CORE_DATA...' : 'NO ACTIVE MISSION_DATA DETECTED.'}
           </p>
         </div>
       )}
 
       {isFormOpen && (
-        <div className="fixed inset-0 z-[200] flex items-center justify-center p-6 overflow-y-auto">
-          <div className="fixed inset-0 bg-black/80 backdrop-blur-sm" onClick={() => setIsFormOpen(false)} />
+        <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 md:p-6 overflow-y-auto">
+          <div className="fixed inset-0 bg-black/90 backdrop-blur-md" onClick={() => setIsFormOpen(false)} />
           <div className="w-full max-w-4xl relative z-[210] animate-in fade-in zoom-in-95 duration-300">
             <AssignmentForm 
               onSubmit={handleAddOrUpdate}

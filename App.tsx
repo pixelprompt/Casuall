@@ -59,25 +59,25 @@ const App: React.FC = () => {
         </svg>
       </div>
 
-      {/* Logout / User HUD Panel */}
-      <div className="fixed top-8 right-8 z-[60] flex items-center gap-6 group">
-        <div className="flex flex-col items-end opacity-40 group-hover:opacity-100 transition-opacity">
+      {/* Logout / User HUD Panel - Mobile Friendly */}
+      <div className="fixed top-4 right-4 md:top-8 md:right-8 z-[60] flex items-center gap-4 md:gap-6 group">
+        <div className="flex flex-col items-end opacity-60 md:opacity-40 group-hover:opacity-100 transition-opacity">
           <div className="flex items-center gap-2">
-            <span className="mono text-[10px] text-blue-400 font-black tracking-widest uppercase">NODE_{user.role}_ACCESS</span>
-            <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_8px_#10b981]" />
+            <span className="mono text-[8px] md:text-[10px] text-blue-400 font-black tracking-widest uppercase">NODE_{user.role}</span>
+            <div className="w-1 h-1 md:w-1.5 md:h-1.5 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_8px_#10b981]" />
           </div>
-          <span className="mono text-[8px] text-zinc-500 uppercase tracking-widest font-bold mt-1">AGENT::{user.username.split('@')[0].toUpperCase()}</span>
+          <span className="mono text-[7px] md:text-[8px] text-zinc-500 uppercase tracking-widest font-bold mt-0.5 md:mt-1">AGENT::{user.username.split('@')[0].toUpperCase()}</span>
         </div>
         <button 
           onClick={handleLogout}
-          className="w-12 h-12 flex items-center justify-center glass border-rose-500/30 text-rose-500 hover:bg-rose-500/10 hover:border-rose-500/50 transition-all rounded-sm shadow-[0_0_20px_rgba(244,63,94,0.1)] active:scale-90"
+          className="w-10 h-10 md:w-12 md:h-12 flex items-center justify-center glass border-rose-500/30 text-rose-500 hover:bg-rose-500/10 hover:border-rose-500/50 transition-all rounded-sm shadow-[0_0_20px_rgba(244,63,94,0.1)] active:scale-90"
           title="TERMINATE_SESSION"
         >
-          <i className="fa-solid fa-power-off text-lg"></i>
+          <i className="fa-solid fa-power-off text-base md:text-lg"></i>
         </button>
       </div>
 
-      {/* Decorative Sidebar HUD */}
+      {/* Decorative Sidebar HUD - Hidden on smaller screens */}
       <aside className="fixed top-1/2 left-8 -translate-y-1/2 hidden 2xl:flex flex-col gap-20 opacity-20 pointer-events-none text-[9px] mono uppercase tracking-[1em] [writing-mode:vertical-lr] z-50 font-black text-zinc-600">
         <span>OPERATIONAL_SECURITY_LAYER_07</span>
         <div className="h-40 w-[1px] bg-gradient-to-b from-transparent via-white/20 to-transparent mx-auto" />
@@ -90,35 +90,35 @@ const App: React.FC = () => {
         <span>MISSION_CONTRO_V4.0</span>
       </aside>
 
-      {/* Header Section */}
-      <header className="relative pt-48 pb-24 px-6 lg:px-32 z-10">
+      {/* Header Section - Mobile Optimized Typography */}
+      <header className="relative pt-32 md:pt-48 pb-16 md:pb-24 px-4 md:px-12 lg:px-32 z-10">
         <div className="max-w-[1800px] mx-auto">
           <div className="flex flex-col items-center lg:items-start text-center lg:text-left">
-            <div className="inline-flex items-center gap-4 px-5 py-2 mb-10 border border-white/10 bg-white/[0.01] backdrop-blur-xl rounded-sm">
+            <div className="inline-flex items-center gap-3 md:gap-4 px-3 md:px-5 py-2 mb-6 md:mb-10 border border-white/10 bg-white/[0.01] backdrop-blur-xl rounded-sm">
               <div className="relative">
-                <div className="w-2 h-2 bg-blue-500 rounded-full animate-ping absolute" />
-                <div className="w-2 h-2 bg-blue-500 rounded-full" />
+                <div className="w-1.5 h-1.5 md:w-2 md:h-2 bg-blue-500 rounded-full animate-ping absolute" />
+                <div className="w-1.5 h-1.5 md:w-2 md:h-2 bg-blue-500 rounded-full" />
               </div>
-              <span className="text-[10px] mono font-black text-blue-400/70 uppercase tracking-[0.5em]">
+              <span className="text-[8px] md:text-[10px] mono font-black text-blue-400/70 uppercase tracking-[0.3em] md:tracking-[0.5em]">
                 AGENT_READY // ACCESS_LEVEL::{user.role}
               </span>
             </div>
             
-            <div className="relative inline-block mb-12 group">
-              <div className="absolute -inset-x-8 -inset-y-6 border-2 border-blue-400/40 pointer-events-none rounded-sm">
-                <div className="absolute top-0 left-0 w-2 h-2 border-t-2 border-l-2 border-blue-400" />
-                <div className="absolute top-0 right-0 w-2 h-2 border-t-2 border-r-2 border-blue-400" />
-                <div className="absolute bottom-0 left-0 w-2 h-2 border-b-2 border-l-2 border-blue-400" />
-                <div className="absolute bottom-0 right-0 w-2 h-2 border-b-2 border-r-2 border-blue-400" />
+            <div className="relative inline-block mb-8 md:mb-12 group">
+              <div className="absolute -inset-x-4 -inset-y-2 md:-inset-x-8 md:-inset-y-6 border-2 border-blue-400/40 pointer-events-none rounded-sm">
+                <div className="absolute top-0 left-0 w-1.5 h-1.5 md:w-2 md:h-2 border-t-2 border-l-2 border-blue-400" />
+                <div className="absolute top-0 right-0 w-1.5 h-1.5 md:w-2 md:h-2 border-t-2 border-r-2 border-blue-400" />
+                <div className="absolute bottom-0 left-0 w-1.5 h-1.5 md:w-2 md:h-2 border-b-2 border-l-2 border-blue-400" />
+                <div className="absolute bottom-0 right-0 w-1.5 h-1.5 md:w-2 md:h-2 border-b-2 border-r-2 border-blue-400" />
               </div>
 
-              <h1 className="text-8xl lg:text-[11rem] font-black uppercase tracking-tighter leading-none glow-text italic text-zinc-50 font-inter relative z-10">
+              <h1 className="text-5xl sm:text-7xl md:text-8xl lg:text-[11rem] font-black uppercase tracking-tighter leading-[0.9] glow-text italic text-zinc-50 font-inter relative z-10">
                 Casuall <br />
                 <span className="text-transparent bg-clip-text bg-gradient-to-br from-white via-zinc-400 to-zinc-700">Camping</span>
               </h1>
             </div>
             
-            <p className="max-w-2xl text-zinc-500 text-2xl font-light leading-snug border-l-4 border-blue-600/30 pl-10 italic">
+            <p className="max-w-xl md:max-w-2xl text-zinc-500 text-lg md:text-2xl font-light leading-snug border-l-2 md:border-l-4 border-blue-600/30 pl-6 md:pl-10 italic">
               Synchronizing high-performance workflows across the KMV Node Network. Authorized access granted for Node {user.role}.
             </p>
           </div>
@@ -126,43 +126,43 @@ const App: React.FC = () => {
       </header>
 
       {/* Main Content Sections */}
-      <main className="relative px-6 lg:px-32 z-10 space-y-56">
+      <main className="relative px-4 md:px-12 lg:px-32 z-10 space-y-32 md:space-y-56">
         
         {/* Team Grid */}
         <section>
-          <div className="flex items-center gap-8 mb-20 border-b border-white/5 pb-8">
-            <h2 className="text-5xl font-black uppercase tracking-tighter italic text-zinc-100 flex items-center gap-4">
+          <div className="flex items-center gap-4 md:gap-8 mb-12 md:mb-20 border-b border-white/5 pb-6 md:pb-8">
+            <h2 className="text-3xl md:text-5xl font-black uppercase tracking-tighter italic text-zinc-100 flex items-center gap-4">
               <span className="text-blue-500/50">#</span> Team_Matrix
             </h2>
             <div className="flex-grow h-px bg-gradient-to-r from-white/10 to-transparent" />
           </div>
-          <div className="grid grid-cols-12 gap-10 max-w-[1800px] mx-auto">
+          <div className="grid grid-cols-12 gap-6 md:gap-10 max-w-[1800px] mx-auto">
             {TEAM_DATA.map((member) => (
               <MemberCard key={member.id} member={member} />
             ))}
 
-            {/* System Telemetry Module */}
-            <div className="col-span-12 lg:col-span-3 p-12 glass border-white/5 bg-zinc-900/10 backdrop-blur-3xl relative overflow-hidden group">
+            {/* System Telemetry Module - Responsive Grid */}
+            <div className="col-span-12 lg:col-span-3 p-8 md:p-12 glass border-white/5 bg-zinc-900/10 backdrop-blur-3xl relative overflow-hidden group">
                <div className="card-corner corner-tl border-white/10 group-hover:border-blue-500/50" />
                <div className="card-corner corner-tr border-white/10 group-hover:border-blue-500/50" />
                <div className="card-corner corner-bl border-white/10 group-hover:border-blue-500/50" />
                <div className="card-corner corner-br border-white/10 group-hover:border-blue-500/50" />
                
-               <span className="text-[9px] mono uppercase text-zinc-600 block mb-6 tracking-[0.4em] font-black">System_Topology</span>
-               <h4 className="text-2xl font-black uppercase mb-12 tracking-[0.1em] text-zinc-200">Global_Pulse</h4>
+               <span className="text-[8px] md:text-[9px] mono uppercase text-zinc-600 block mb-6 tracking-[0.3em] md:tracking-[0.4em] font-black">System_Topology</span>
+               <h4 className="text-xl md:text-2xl font-black uppercase mb-8 md:mb-12 tracking-[0.1em] text-zinc-200">Global_Pulse</h4>
                
-               <div className="space-y-10">
+               <div className="space-y-8 md:space-y-10">
                  {[
                    { label: 'Edge-Gateway', state: 'ONLINE', bar: 94, color: 'blue' },
                    { label: 'Neural-Sync', state: 'LINKED', bar: 52, color: 'blue' },
                    { label: 'Cipher-Vault', state: 'SECURED', bar: 88, color: 'blue' },
                  ].map((item, i) => (
                    <div key={i}>
-                     <div className="flex justify-between text-[10px] mono uppercase mb-3 tracking-[0.2em] font-black">
+                     <div className="flex justify-between text-[9px] md:text-[10px] mono uppercase mb-2 md:mb-3 tracking-[0.2em] font-black">
                        <span className="text-zinc-500">{item.label}</span>
                        <span className="text-blue-500 animate-pulse">{item.state}</span>
                      </div>
-                     <div className="h-[3px] bg-white/5 w-full relative">
+                     <div className="h-[2px] md:h-[3px] bg-white/5 w-full relative">
                        <div className="h-full bg-blue-600 transition-all duration-1000" style={{ width: `${item.bar}%` }} />
                        <div className="absolute top-0 right-0 h-full w-[2px] bg-white/40" />
                      </div>
@@ -173,8 +173,8 @@ const App: React.FC = () => {
           </div>
         </section>
 
-        {/* Assignment Tracker Section - Visible to all, but restricted actions inside Tracker component */}
-        <section id="assignment-tracker" className="max-w-[1800px] mx-auto pt-24 border-t border-white/5">
+        {/* Assignment Tracker Section */}
+        <section id="assignment-tracker" className="max-w-[1800px] mx-auto pt-16 md:pt-24 border-t border-white/5">
           <Tracker currentUserRole={user.role} />
         </section>
       </main>
@@ -182,19 +182,19 @@ const App: React.FC = () => {
       {/* HUD Floating Layer */}
       <ChatBot />
 
-      {/* Cinematic Footer */}
-      <footer className="mt-80 px-10 lg:px-32 pb-24 opacity-40 relative z-10 border-t border-white/5 pt-20">
-        <div className="max-w-[1800px] mx-auto flex flex-col lg:flex-row justify-between items-end gap-16">
-          <div className="flex flex-col gap-6">
-            <span className="text-[14px] mono uppercase tracking-[0.5em] font-black text-zinc-400">OPERATIONAL_CONTROL_INTERFACE</span>
-            <span className="text-xs font-light text-zinc-600 max-w-2xl leading-relaxed italic">
+      {/* Cinematic Footer - Stacked on Mobile */}
+      <footer className="mt-48 md:mt-80 px-4 md:px-12 lg:px-32 pb-16 md:pb-24 opacity-40 relative z-10 border-t border-white/5 pt-12 md:pt-20">
+        <div className="max-w-[1800px] mx-auto flex flex-col lg:flex-row justify-between items-start lg:items-end gap-10 md:gap-16">
+          <div className="flex flex-col gap-4 md:gap-6">
+            <span className="text-[10px] md:text-[14px] mono uppercase tracking-[0.3em] md:tracking-[0.5em] font-black text-zinc-400">OPERATIONAL_CONTROL_INTERFACE</span>
+            <span className="text-[10px] md:text-xs font-light text-zinc-600 max-w-2xl leading-relaxed italic">
               Proprietary software for authorized KMV Node Agents. Operational integrity is non-negotiable. 
               Logs are recorded for periodic auditing by Central Intelligence Node.
             </span>
           </div>
-          <div className="text-[10px] mono uppercase text-right space-y-3 font-black tracking-[0.3em]">
+          <div className="text-[8px] md:text-[10px] mono uppercase text-left lg:text-right space-y-2 md:space-y-3 font-black tracking-[0.2em] md:tracking-[0.3em] w-full lg:w-auto">
              <div className="text-zinc-500">SYSTEM_TIME::{new Date().toISOString().split('T')[1].slice(0, 8)}</div>
-             <div className="text-blue-500/70 underline decoration-blue-500/20 underline-offset-8">UPLINK::STABLE // SESSION::{user.username.toUpperCase()}</div>
+             <div className="text-blue-500/70 underline decoration-blue-500/20 underline-offset-4 md:underline-offset-8">UPLINK::STABLE // SESSION::{user.username.toUpperCase()}</div>
           </div>
         </div>
       </footer>

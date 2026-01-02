@@ -44,7 +44,7 @@ const AssignmentForm: React.FC<AssignmentFormProps> = ({ onSubmit, editingAssign
     setError(null);
 
     if (!selectedPerson || !selectedTaskLabel || !dueDate || !assignedDate) {
-      setError("Please select a Person, a Task, and provide valid Dates.");
+      setError("Incomplete data. Identify Agent & Operation.");
       return;
     }
 
@@ -77,40 +77,40 @@ const AssignmentForm: React.FC<AssignmentFormProps> = ({ onSubmit, editingAssign
   const today = new Date().toISOString().split('T')[0];
 
   return (
-    <form onSubmit={handleSubmit} className="glass p-8 border-blue-500/20 relative overflow-hidden group shadow-2xl">
+    <form onSubmit={handleSubmit} className="glass p-6 md:p-8 border-blue-500/20 relative overflow-hidden group shadow-2xl">
       <div className="card-corner corner-tl opacity-60 border-blue-400" />
       <div className="card-corner corner-tr opacity-60 border-blue-400" />
       
-      {/* Decorative vertical center text from screenshot */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-[0.03] pointer-events-none select-none text-[8px] mono uppercase tracking-[1em] [writing-mode:vertical-lr] font-bold text-white h-full py-10">
+      {/* Decorative center text - Hidden on mobile for clarity */}
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-[0.03] pointer-events-none select-none text-[8px] mono uppercase tracking-[1em] [writing-mode:vertical-lr] font-bold text-white h-full py-10 hidden md:block">
         MISSION_CONTROL_V4.0.0
       </div>
 
-      <div className="flex items-center gap-3 mb-8 border-b border-white/10 pb-4">
+      <div className="flex items-center gap-3 mb-6 md:mb-8 border-b border-white/10 pb-4">
         <i className="fa-solid fa-microchip text-blue-400 animate-pulse"></i>
-        <h3 className="text-xl font-black uppercase tracking-widest italic text-white">
-          {editingAssignment ? 'Update_Record' : 'Smart_Assignment_Engine'}
+        <h3 className="text-lg md:text-xl font-black uppercase tracking-widest italic text-white">
+          {editingAssignment ? 'Update_Record' : 'Smart_Assignment'}
         </h3>
       </div>
 
       {error && (
-        <div className="mb-6 p-3 bg-rose-500/10 border border-rose-500/30 text-rose-400 text-[10px] mono uppercase tracking-widest flex items-center gap-2">
+        <div className="mb-6 p-3 bg-rose-500/10 border border-rose-500/30 text-rose-400 text-[9px] mono uppercase tracking-widest flex items-center gap-2">
           <i className="fa-solid fa-triangle-exclamation"></i>
           {error}
         </div>
       )}
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-        <div className="space-y-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
+        <div className="space-y-4 md:space-y-6">
           {/* Person Selection */}
           <div>
-            <label className="block text-[10px] mono uppercase text-zinc-400 mb-2 tracking-[0.2em]">Select_Target_Agent</label>
+            <label className="block text-[8px] md:text-[10px] mono uppercase text-zinc-500 mb-2 tracking-[0.2em]">Select_Target_Agent</label>
             <select 
               className="w-full bg-zinc-900 border border-white/20 rounded-sm px-4 py-3 text-sm focus:border-blue-500/80 outline-none transition-all text-white"
               value={selectedPerson}
               onChange={e => {
                 setSelectedPerson(e.target.value);
-                setSelectedTaskLabel(''); // Reset task when person changes
+                setSelectedTaskLabel('');
               }}
             >
               <option value="" disabled>-- IDENTIFY AGENT --</option>
@@ -122,7 +122,7 @@ const AssignmentForm: React.FC<AssignmentFormProps> = ({ onSubmit, editingAssign
 
           {/* Assignment Date */}
           <div>
-            <label className="block text-[10px] mono uppercase text-zinc-400 mb-2 tracking-[0.2em]">Assignment_Date</label>
+            <label className="block text-[8px] md:text-[10px] mono uppercase text-zinc-500 mb-2 tracking-[0.2em]">Assignment_Date</label>
             <input 
               type="date"
               className="w-full bg-zinc-900 border border-white/20 rounded-sm px-4 py-3 text-sm focus:border-blue-500/80 outline-none transition-all text-white [color-scheme:dark]"
@@ -133,7 +133,7 @@ const AssignmentForm: React.FC<AssignmentFormProps> = ({ onSubmit, editingAssign
 
           {/* Cascading Task Selection */}
           <div>
-            <label className="block text-[10px] mono uppercase text-zinc-400 mb-2 tracking-[0.2em]">Identify_Operation</label>
+            <label className="block text-[8px] md:text-[10px] mono uppercase text-zinc-500 mb-2 tracking-[0.2em]">Identify_Operation</label>
             <select 
               className="w-full bg-zinc-900 border border-white/20 rounded-sm px-4 py-3 text-sm focus:border-blue-500/80 outline-none transition-all text-white disabled:opacity-30 disabled:cursor-not-allowed"
               value={selectedTaskLabel}
@@ -152,10 +152,10 @@ const AssignmentForm: React.FC<AssignmentFormProps> = ({ onSubmit, editingAssign
           </div>
         </div>
 
-        <div className="space-y-6">
+        <div className="space-y-4 md:space-y-6">
           {/* Deadline Picker */}
           <div>
-            <label className="block text-[10px] mono uppercase text-zinc-400 mb-2 tracking-[0.2em]">Mission_Deadline</label>
+            <label className="block text-[8px] md:text-[10px] mono uppercase text-zinc-500 mb-2 tracking-[0.2em]">Mission_Deadline</label>
             <input 
               type="date"
               min={today}
@@ -167,7 +167,7 @@ const AssignmentForm: React.FC<AssignmentFormProps> = ({ onSubmit, editingAssign
 
           {/* Category Display */}
           <div>
-            <label className="block text-[10px] mono uppercase text-zinc-400 mb-2 tracking-[0.2em]">Sector_Classification</label>
+            <label className="block text-[8px] md:text-[10px] mono uppercase text-zinc-500 mb-2 tracking-[0.2em]">Sector_Classification</label>
             <div className="w-full bg-zinc-900/50 border border-white/5 rounded-sm px-4 py-3 text-sm text-blue-400/80 mono italic">
               {selectedCategory}
             </div>
@@ -175,29 +175,29 @@ const AssignmentForm: React.FC<AssignmentFormProps> = ({ onSubmit, editingAssign
         </div>
       </div>
 
-      <div className="mt-8">
-        <label className="block text-[10px] mono uppercase text-zinc-400 mb-2 tracking-[0.2em]">Operational_Notes</label>
+      <div className="mt-6 md:mt-8">
+        <label className="block text-[8px] md:text-[10px] mono uppercase text-zinc-500 mb-2 tracking-[0.2em]">Operational_Notes</label>
         <textarea 
-          className="w-full bg-zinc-900 border border-white/20 rounded-sm px-4 py-3 text-sm focus:border-blue-500/80 outline-none transition-all h-24 resize-none text-white placeholder-zinc-700"
+          className="w-full bg-zinc-900 border border-white/20 rounded-sm px-4 py-3 text-sm focus:border-blue-500/80 outline-none transition-all h-24 md:h-32 resize-none text-white placeholder-zinc-700"
           value={notes}
           onChange={e => setNotes(e.target.value)}
           placeholder="Telemetry, initial briefing, and objective details..."
         />
       </div>
 
-      <div className="mt-10 flex flex-col sm:flex-row gap-4">
+      <div className="mt-8 md:mt-10 flex flex-col sm:flex-row gap-4">
         <button 
           type="submit"
-          className="flex-grow bg-blue-600 hover:bg-blue-500 text-white py-4 px-8 font-black uppercase tracking-[0.3em] text-[10px] transition-all rounded-sm shadow-[0_0_30px_rgba(59,130,246,0.2)] active:scale-95 border border-blue-400/50"
+          className="flex-grow bg-blue-600 hover:bg-blue-500 text-white py-4 px-8 font-black uppercase tracking-[0.2em] md:tracking-[0.3em] text-[10px] transition-all rounded-sm shadow-[0_0_30px_rgba(59,130,246,0.2)] active:scale-95 border border-blue-400/50"
         >
-          {editingAssignment ? 'SYNCHRONIZE_CHANGES' : 'INITIALIZE_ASSIGNMENT'}
+          {editingAssignment ? 'SYNCHRONIZE' : 'INITIALIZE'}
         </button>
         <button 
           type="button"
           onClick={onCancel}
-          className="px-10 border border-white/10 bg-white/5 hover:bg-white/10 uppercase mono text-[9px] tracking-[0.3em] transition-all text-zinc-400 hover:text-white py-4"
+          className="px-8 md:px-10 border border-white/10 bg-white/5 hover:bg-white/10 uppercase mono text-[9px] tracking-[0.2em] md:tracking-[0.3em] transition-all text-zinc-400 hover:text-white py-4"
         >
-          ABORT_PROCESS
+          ABORT
         </button>
       </div>
     </form>

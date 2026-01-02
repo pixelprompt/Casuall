@@ -41,7 +41,7 @@ const MemberCard: React.FC<MemberCardProps> = ({ member }) => {
     small: 'col-span-12 md:col-span-6 lg:col-span-3',
     medium: 'col-span-12 md:col-span-6 lg:col-span-4',
     large: 'col-span-12 lg:col-span-6',
-    tall: 'col-span-12 md:col-span-6 lg:col-span-3 row-span-2',
+    tall: 'col-span-12 md:col-span-6 lg:col-span-3 row-span-1 md:row-span-2',
   };
 
   return (
@@ -52,43 +52,43 @@ const MemberCard: React.FC<MemberCardProps> = ({ member }) => {
       <div className={`card-corner corner-bl group-hover:border-white/40 transition-colors`} />
       <div className={`card-corner corner-br group-hover:border-white/40 transition-colors`} />
 
-      {/* Background Graphic Decor */}
-      <div className="absolute -top-10 -right-10 opacity-[0.03] pointer-events-none group-hover:opacity-[0.07] transition-opacity duration-700">
-        <i className={`fa-solid ${member.icon} text-[180px]`}></i>
+      {/* Background Graphic Decor - Scaled for Mobile */}
+      <div className="absolute -top-6 -right-6 md:-top-10 md:-right-10 opacity-[0.03] pointer-events-none group-hover:opacity-[0.07] transition-opacity duration-700">
+        <i className={`fa-solid ${member.icon} text-[120px] md:text-[180px]`}></i>
       </div>
       
-      <div className="p-8 h-full flex flex-col relative z-10">
+      <div className="p-6 md:p-8 h-full flex flex-col relative z-10">
         {/* Header HUD Style */}
-        <div className="flex items-start justify-between mb-8">
+        <div className="flex items-start justify-between mb-6 md:mb-8">
           <div>
             <div className="flex items-center gap-2 mb-2">
-               <span className={`px-2 py-0.5 rounded-sm text-[9px] uppercase tracking-[0.2em] mono font-bold border border-white/10 ${accentColor[member.color]} bg-white/5`}>
+               <span className={`px-2 py-0.5 rounded-sm text-[8px] md:text-[9px] uppercase tracking-[0.2em] mono font-bold border border-white/10 ${accentColor[member.color]} bg-white/5`}>
                 SYS_NODE_{member.id.toUpperCase().slice(0, 3)}
               </span>
-              <div className="w-12 h-[1px] bg-white/10"></div>
+              <div className="w-8 md:w-12 h-[1px] bg-white/10"></div>
             </div>
-            <h3 className="text-3xl font-black tracking-tighter uppercase leading-none group-hover:tracking-normal transition-all duration-700">
+            <h3 className="text-2xl md:text-3xl font-black tracking-tighter uppercase leading-none group-hover:tracking-normal transition-all duration-700">
               {member.name}
             </h3>
-            <span className="text-[10px] text-zinc-500 uppercase tracking-widest block mt-1 mono">
+            <span className="text-[9px] md:text-[10px] text-zinc-500 uppercase tracking-widest block mt-1 mono">
               {member.category}
             </span>
           </div>
-          <div className={`w-14 h-14 flex items-center justify-center border border-white/5 bg-black/40 group-hover:border-white/20 transition-all`}>
-            <i className={`fa-solid ${member.icon} ${accentColor[member.color]} text-2xl`}></i>
+          <div className={`w-10 h-10 md:w-14 md:h-14 flex items-center justify-center border border-white/5 bg-black/40 group-hover:border-white/20 transition-all`}>
+            <i className={`fa-solid ${member.icon} ${accentColor[member.color]} text-xl md:text-2xl`}></i>
           </div>
         </div>
 
         {/* Task List with HUD Visuals */}
-        <div className="flex-grow space-y-4">
+        <div className="flex-grow space-y-3 md:space-y-4">
           {member.tasks.map((task, idx) => (
             <div key={idx} className="group/item relative">
               <div className="flex justify-between items-end mb-1">
-                <span className="text-xs uppercase tracking-wider text-zinc-400 group-hover/item:text-white transition-colors">
+                <span className="text-[10px] md:text-xs uppercase tracking-wider text-zinc-400 group-hover/item:text-white transition-colors">
                   {task.label}
                 </span>
                 {task.count && (
-                  <span className={`text-[10px] mono font-bold ${accentColor[member.color]}`}>
+                  <span className={`text-[9px] md:text-[10px] mono font-bold ${accentColor[member.color]}`}>
                     VAL::{task.count.toString().padStart(2, '0')}
                   </span>
                 )}
@@ -104,12 +104,13 @@ const MemberCard: React.FC<MemberCardProps> = ({ member }) => {
         </div>
 
         {/* Technical Footer */}
-        <div className="mt-10 flex items-center justify-between text-[9px] mono uppercase text-zinc-600">
-          <div className="flex items-center gap-4">
-            <span>Lat: { (Math.random() * 90).toFixed(4) }N</span>
-            <span>Lng: { (Math.random() * 180).toFixed(4) }E</span>
+        <div className="mt-8 md:mt-10 flex items-center justify-between text-[8px] md:text-[9px] mono uppercase text-zinc-600">
+          <div className="flex items-center gap-2 md:gap-4">
+            <span className="hidden sm:inline">Lat: { (Math.random() * 90).toFixed(4) }N</span>
+            <span className="sm:hidden">L:{(Math.random() * 90).toFixed(2)}N</span>
+            <span className="hidden sm:inline">Lng: { (Math.random() * 180).toFixed(4) }E</span>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5 md:gap-2">
             <span className={`w-1 h-1 rounded-full ${accentBg[member.color]} animate-pulse`}></span>
             <span>Link_Stable</span>
           </div>
